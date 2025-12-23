@@ -3,24 +3,33 @@ async function run(input) {
 
   return new Promise(resolve => {
     const audio = new Audio();
+
     audio.preload = "auto";
     audio.src = "https://assetdelivery.roblox.com/v1/asset/?id=" + id;
 
-    let done = false;
+    let finished = false;
 
     const finish = valid => {
-      if (done) return;
-      done = true;
+      if (finished) return;
+      finished = true;
+
+      audio.pause();
       audio.src = "";
-      resolve({
-        id,
-        valid
-      });
+      audio.load();
+
+      resolve({ id, valid });
     };
 
-    audio.oncanplaythrough = () => finish(true);
+    // SUCCESS
+    audio.oncanplay = () => finish(true);
+
+    // FAILURE
     audio.onerror = () => finish(false);
 
-    setTimeout(() => finish(false), 3000);
+    // FORCE LOAD (CRITICAL)
+    audio.load();
+
+    // HARD TIMEOUT SAFETY
+    setTimeout(() => finish(false), 3500);
   });
 }
