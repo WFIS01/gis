@@ -1,1 +1,15 @@
+async function run(input) {
+  const id = input.id;
 
+  const res = await fetch(
+    "https://assetdelivery.roblox.com/v1/asset/?id=" + id,
+    { method: "HEAD" }
+  );
+
+  const type = res.headers.get("content-type") || "";
+
+  return {
+    id,
+    valid: res.ok && type.startsWith("audio/")
+  };
+}
