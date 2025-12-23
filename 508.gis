@@ -1,15 +1,26 @@
 async function run(input) {
   const id = input.id;
 
-  const res = await fetch(
-    "https://assetdelivery.roblox.com/v1/asset/?id=" + id,
-    { method: "HEAD" }
-  );
+  return new Promise(resolve => {
+    const audio = new Audio();
+    audio.preload = "auto";
+    audio.src = "https://assetdelivery.roblox.com/v1/asset/?id=" + id;
 
-  const type = res.headers.get("content-type") || "";
+    let done = false;
 
-  return {
-    id,
-    valid: res.ok && type.startsWith("audio/")
-  };
+    const finish = valid => {
+      if (done) return;
+      done = true;
+      audio.src = "";
+      resolve({
+        id,
+        valid
+      });
+    };
+
+    audio.oncanplaythrough = () => finish(true);
+    audio.onerror = () => finish(false);
+
+    setTimeout(() => finish(false), 3000);
+  });
 }
