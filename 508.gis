@@ -4,7 +4,12 @@ async function run(input) {
   try {
     const res = await fetch(
       "https://assetdelivery.roblox.com/v1/asset/?id=" + id,
-      { method: "HEAD" }
+      {
+        method: "GET",
+        headers: {
+          "Range": "bytes=0-0"
+        }
+      }
     );
 
     const type = res.headers.get("content-type") || "";
@@ -13,7 +18,11 @@ async function run(input) {
       id,
       valid: res.ok && type.startsWith("audio/")
     };
-  } catch {
-    return { id, valid: false };
+  } catch (e) {
+    return {
+      id,
+      valid: false,
+      error: "fetch_failed"
+    };
   }
 }
